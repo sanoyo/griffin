@@ -1,91 +1,28 @@
+/*
+Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 package main
 
-import (
-	"fmt"
-	"os/exec"
-	"strings"
-	"time"
-
-	"github.com/rivo/tview"
-)
-
-// psコマンドを実行して出力を取得する関数
-func getPsOutput() (string, error) {
-	cmd := exec.Command("ps")
-	output, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	return string(output), nil
-}
-
-// psコマンドの出力に色を付ける関数
-func colorizePsOutput(psOutput string) string {
-	lines := strings.Split(psOutput, "\n")
-	if len(lines) == 0 {
-		return psOutput
-	}
-
-	header := lines[0]
-	body := lines[1:]
-
-	// ヘッダーに色を付ける
-	colorizedHeader := fmt.Sprintf("[yellow]%s[white]", header)
-
-	// ボディに色を付ける
-	var colorizedBody []string
-	for _, line := range body {
-		if strings.TrimSpace(line) == "" {
-			continue
-		}
-		colorizedBody = append(colorizedBody, fmt.Sprintf("[green]%s[white]", line))
-	}
-
-	return fmt.Sprintf("%s\n%s", colorizedHeader, strings.Join(colorizedBody, "\n"))
-}
+import "github.com/sanoyo/griffin/cmd"
 
 func main() {
-	// tview.TextViewウィジェットを作成
-	textView := tview.NewTextView().
-		SetDynamicColors(true).
-		SetRegions(true).
-		SetWrap(false).
-		SetWordWrap(false)
-
-	// tview.Applicationを作成
-	tviewApp := tview.NewApplication()
-
-	// TextViewにキーハンドラを設定
-	textView.SetChangedFunc(func() {
-		tviewApp.Draw()
-	})
-
-	// psコマンドの出力を定期的に更新するゴルーチンを起動
-	go func() {
-		for {
-			psOutput, err := getPsOutput()
-			if err != nil {
-				fmt.Printf("Error executing ps command: %v\n", err)
-				return
-			}
-			colorizedOutput := colorizePsOutput(psOutput)
-
-			// TextViewの内容を更新
-			tviewApp.QueueUpdateDraw(func() {
-				textView.SetText(colorizedOutput)
-			})
-
-			// 1秒間隔で更新
-			time.Sleep(1 * time.Second)
-		}
-	}()
-
-	// Flexレイアウトを作成し、TextViewを追加
-	flex := tview.NewFlex().
-		AddItem(textView, 0, 1, false)
-
-	// Applicationを起動
-	if err := tviewApp.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
-		panic(err)
-	}
+	cmd.Execute()
 }
