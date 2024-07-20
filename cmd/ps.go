@@ -21,7 +21,7 @@ var psCmd = &cobra.Command{
 and usage of using your command. For example:
 
 Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
+This application is a tool to generate the need	ed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// tview.TextViewウィジェットを作成
@@ -60,10 +60,7 @@ to quickly create a Cobra application.`,
 		}()
 
 		// Flexレイアウトを作成し、TextViewを追加
-		flex := tview.NewFlex().
-			AddItem(textView, 0, 1, false)
-
-		// Applicationを起動
+		flex := tview.NewFlex().AddItem(textView, 0, 1, false)
 		if err := tviewApp.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
 			panic(err)
 		}
